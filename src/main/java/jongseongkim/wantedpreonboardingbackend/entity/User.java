@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.springframework.util.Assert;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jongseongkim.wantedpreonboardingbackend.utils.ValidationUtil;
 import lombok.AccessLevel;
@@ -28,6 +28,8 @@ import lombok.ToString;
 @Getter
 @ToString
 public class User extends BaseEntity {
+
+	public static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,7 +62,7 @@ public class User extends BaseEntity {
 		 */
 		public UserBuilder password(String password) {
 			ValidationUtil.validatePassword(password);
-			this.password = password;
+			this.password = PASSWORD_ENCODER.encode(password); // bcrypt 암호화
 
 			return this;
 		}
