@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jongseongkim.wantedpreonboardingbackend.utils.ValidationUtil;
@@ -22,6 +23,7 @@ import lombok.ToString;
 @Table(name = "users", uniqueConstraints = {
 	@UniqueConstraint(name = "UniqueEmail", columnNames = {"email"})
 })
+@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -42,6 +44,14 @@ public class User extends BaseEntity {
 	private String password;
 
 	private String refreshToken;
+
+	public boolean login(String rawPassword) {
+		return PASSWORD_ENCODER.matches(rawPassword, this.password);
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 
 	public static class UserBuilder {
 

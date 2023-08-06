@@ -1,6 +1,7 @@
 package jongseongkim.wantedpreonboardingbackend.conroller;
 
 import javax.persistence.EntityExistsException;
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
@@ -14,16 +15,16 @@ import lombok.NoArgsConstructor;
 @RestControllerAdvice
 public class GlobalControllerAdvisor {
 
-	@ExceptionHandler(value = {IllegalArgumentException.class})
-	public ErrorResponse handleIllegalArgumentException(
-		IllegalArgumentException e, HttpServletResponse response) {
+	@ExceptionHandler(value = {IllegalArgumentException.class, LoginException.class})
+	public ErrorResponse handleBadRequestException(
+		Exception e, HttpServletResponse response) {
 		response.setStatus(HttpStatus.BAD_REQUEST.value());
 		return ErrorResponse.of(e);
 	}
 
 	@ExceptionHandler(value = {EntityExistsException.class})
-	public ErrorResponse handleEntityExistsException(
-		EntityExistsException e, HttpServletResponse response) {
+	public ErrorResponse handleConflictException(
+		Exception e, HttpServletResponse response) {
 		response.setStatus(HttpStatus.CONFLICT.value());
 		return ErrorResponse.of(e);
 	}
