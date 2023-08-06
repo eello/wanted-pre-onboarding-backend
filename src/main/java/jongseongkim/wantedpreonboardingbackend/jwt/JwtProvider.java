@@ -49,7 +49,7 @@ public class JwtProvider {
 			.compact();
 	}
 
-	public void validateToken(String token) throws Exception {
+	public void validateToken(String token) {
 		Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 	}
 
