@@ -17,8 +17,8 @@ import jongseongkim.wantedpreonboardingbackend.entity.User;
 @Component
 public class JwtProvider {
 
-	public static final Long ACCESS_TOKEN_EXPIRES = 3600L; // 1 Hour
-	public static final Long REFRESH_TOKEN_EXPIRES = 604800L; // 1 Week
+	public static final Long ACCESS_TOKEN_EXPIRES = 3600000L; // 1 Hour
+	public static final Long REFRESH_TOKEN_EXPIRES = 604800000L; // 1 Week
 
 	private final Key secretKey;
 
