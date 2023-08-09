@@ -16,6 +16,7 @@ import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
 import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
+import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.service.BoardService;
@@ -57,5 +58,15 @@ public class BoardServiceImpl implements BoardService {
 	public PaginationDTO<Board, BoardDTO> getBoardsWithPaging(Pageable pageable) {
 		Page<Board> boards = boardRepository.findAll(pageable);
 		return new PaginationDTO<>(boards, BoardDTO.mapper());
+	}
+
+	@Override
+	public BoardDTO getById(Long boardID) {
+		Assert.notNull(boardID, ARG_IS_NULL.getDescription());
+
+		Board board = boardRepository.findById(boardID)
+			.orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_BOARD.getDescription()));
+
+		return BoardDTO.of(board);
 	}
 }

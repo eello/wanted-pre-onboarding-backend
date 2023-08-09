@@ -1,6 +1,7 @@
 package jongseongkim.wantedpreonboardingbackend.conroller;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,12 @@ public class GlobalControllerAdvisor {
 	public ErrorResponse handleConflictException(
 		Exception e, HttpServletResponse response) {
 		response.setStatus(HttpStatus.CONFLICT.value());
+		return ErrorResponse.of(e);
+	}
+
+	@ExceptionHandler(value = {EntityNotFoundException.class})
+	public ErrorResponse handleNotFoundException(Exception e, HttpServletResponse response) {
+		response.setStatus(HttpStatus.NOT_FOUND.value());
 		return ErrorResponse.of(e);
 	}
 

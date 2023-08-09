@@ -24,6 +24,7 @@ import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
 import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
+import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.vo.BoardRegisterRequestVO;
@@ -290,5 +291,46 @@ class BoardServiceImplTest {
 		assertEquals(totalElements, result.getTotalElements());
 		assertEquals(expectedTotalPages, result.getTotalPages());
 		assertIterableEquals(expectedContent, result.getContent());
+	}
+
+	@Test
+	public void 특정_게시글_조회_실패_not_found() {
+	    // given
+		given(boardRepository.findById(anyLong())).willReturn(Optional.empty());
+
+	    // when
+		EntityNotFoundException exception =
+			assertThrows(EntityNotFoundException.class, () -> boardService.getById(1L));
+
+	    // then
+		assertEquals(NOT_FOUND_BOARD.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 특정_게시글_조회_성공() {
+		// given
+		User writer = User.builder()
+			.id(1L)
+			.email("aa@aa.a")
+			.build();
+
+		Board board = Board.builder()
+			.writer(writer)
+			.id(1L)
+			.title("title")
+			.content("content")
+			.build();
+
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+		// when
+		BoardDTO result = assertDoesNotThrow(() -> boardService.getById(board.getId()));
+
+		// then
+		assertEquals(writer.getId(), result.getWriter().getId());
+		assertEquals(writer.getEmail(), result.getWriter().getEmail());
+		assertEquals(board.getId(), result.getId());
+		assertEquals(board.getTitle(), result.getTitle());
+		assertEquals(board.getContent(), result.getContent());
 	}
 }

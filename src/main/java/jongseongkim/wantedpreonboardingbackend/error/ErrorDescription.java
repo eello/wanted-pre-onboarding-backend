@@ -15,6 +15,7 @@ public enum ErrorDescription {
 	INVALID_CONTENT("본문은 필수이며 최소 공백이 아닌 한 글자를 포함해야합니다."),
 	NOT_FOUND_USER("존재하지 않는 유저입니다."),
 	ARG_IS_NULL("값이 Null인 Argument가 존재합니다."),
+	NOT_FOUND_BOARD("존재하지 않는 게시글입니다."),
 	;
 
 	private final String description;

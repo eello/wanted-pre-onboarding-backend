@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,5 +55,10 @@ public class BoardController {
 	public PaginationDTO<Board, BoardDTO> getBoards(Pageable pageable) {
 		PaginationDTO<Board, BoardDTO> result = boardService.getBoardsWithPaging(pageable);
 		return result;
+	}
+
+	@GetMapping("/{id}")
+	public BoardDTO getBoardById(@PathVariable("id") Long boardId) {
+		return boardService.getById(boardId);
 	}
 }
