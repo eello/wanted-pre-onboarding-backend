@@ -4,7 +4,11 @@ import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -13,7 +17,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
+import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
@@ -208,5 +216,79 @@ class BoardServiceImplTest {
 
 		// then
 		assertEquals(boardId, registeredBoardId);
+	}
+
+	@Test
+	public void 게시글_목록_조회_empty() {
+	    // given
+		int page = 0;
+		int size = 20;
+		PageRequest pageable = PageRequest.of(page, size);
+		given(boardRepository.findAll(any(PageRequest.class)))
+			.willReturn(new PageImpl<Board>(Collections.emptyList(), pageable, 0));
+
+	    // when
+		PaginationDTO<Board, BoardDTO> result =
+			assertDoesNotThrow(() -> boardService.getBoardsWithPaging(pageable));
+
+		// then
+		assertTrue(result.getIsFirst());
+		assertTrue(result.getIsLast());
+		assertTrue(result.getIsEmpty());
+		assertFalse(result.getHasPrevious());
+		assertFalse(result.getHasNext());
+		assertEquals(page, result.getPageNum());
+		assertEquals(size, result.getSizePerPage());
+		assertEquals(0, result.getTotalElements());
+		assertEquals(0, result.getTotalPages());
+		assertTrue(result.getContent().isEmpty());
+	}
+
+	@Test
+	public void 게시글_목록_조회() {
+	    // given
+		int totalElements = 100;
+		List<Board> contents = new ArrayList<>();
+		for (int i = 0; i < totalElements; i++) {
+			User writer = User.builder()
+				.id((long)i)
+				.email(i + "aa@aa.a")
+				.build();
+
+			Board board = Board.builder()
+				.id((long)i)
+				.writer(writer)
+				.title("title" + i)
+				.build();
+
+			contents.add(board);
+		}
+
+		int page = 0;
+		int size = 20;
+		PageRequest pageable = PageRequest.of(page, size);
+		given(boardRepository.findAll(pageable))
+			.willReturn(new PageImpl<>(contents, pageable, contents.size()));
+
+	    // when
+		PaginationDTO<Board, BoardDTO> result =
+			assertDoesNotThrow(() -> boardService.getBoardsWithPaging(pageable));
+
+		// then
+		List<BoardDTO> expectedContent = contents.stream()
+			.map(BoardDTO::of)
+			.collect(Collectors.toList());
+		int expectedTotalPages = (int)Math.ceil((double)totalElements / (double)size);
+
+		assertTrue(result.getIsFirst());
+		assertFalse(result.getIsLast());
+		assertFalse(result.getIsEmpty());
+		assertFalse(result.getHasPrevious());
+		assertTrue(result.getHasNext());
+		assertEquals(page, result.getPageNum());
+		assertEquals(size, result.getSizePerPage());
+		assertEquals(totalElements, result.getTotalElements());
+		assertEquals(expectedTotalPages, result.getTotalPages());
+		assertIterableEquals(expectedContent, result.getContent());
 	}
 }

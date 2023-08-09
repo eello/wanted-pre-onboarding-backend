@@ -5,7 +5,9 @@ import static jongseongkim.wantedpreonboardingbackend.jwt.UserExtractionFromJwtR
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
+import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
+import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.service.BoardService;
 import jongseongkim.wantedpreonboardingbackend.vo.BoardRegisterRequestVO;
 import lombok.RequiredArgsConstructor;
@@ -45,5 +50,9 @@ public class BoardController {
 		response.setStatus(HttpServletResponse.SC_CREATED);
 	}
 
-
+	@GetMapping
+	public PaginationDTO<Board, BoardDTO> getBoards(Pageable pageable) {
+		PaginationDTO<Board, BoardDTO> result = boardService.getBoardsWithPaging(pageable);
+		return result;
+	}
 }

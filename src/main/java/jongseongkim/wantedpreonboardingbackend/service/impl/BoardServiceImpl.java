@@ -2,20 +2,23 @@ package jongseongkim.wantedpreonboardingbackend.service.impl;
 
 import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
 
+import java.util.List;
+
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
+import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
+import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
-import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.service.BoardService;
-import jongseongkim.wantedpreonboardingbackend.utils.ValidationUtil;
 import jongseongkim.wantedpreonboardingbackend.vo.BoardRegisterRequestVO;
 import lombok.RequiredArgsConstructor;
 
@@ -48,5 +51,11 @@ public class BoardServiceImpl implements BoardService {
 			.build();
 
 		return boardRepository.save(board).getId();
+	}
+
+	@Override
+	public PaginationDTO<Board, BoardDTO> getBoardsWithPaging(Pageable pageable) {
+		Page<Board> boards = boardRepository.findAll(pageable);
+		return new PaginationDTO<>(boards, BoardDTO.mapper());
 	}
 }
