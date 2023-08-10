@@ -9,6 +9,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import jongseongkim.wantedpreonboardingbackend.entity.User;
+import jongseongkim.wantedpreonboardingbackend.exception.NotAuthenticated;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,10 @@ public class UserExtractionFromJwtResolver implements HandlerMethodArgumentResol
 			String jwt = authorization.substring(7);
 
 			String userEmail = jwtProvider.parseClaims(jwt).getSubject();
-			userRepository.findByEmail(userEmail).ifPresent(eu::setUser);
+			User user = userRepository.findByEmail(userEmail)
+				.orElseThrow(() -> new NotAuthenticated("인증이 필요한 서비스입니다."));
+
+			eu.setUser(user);
 		}
 
 		return eu;

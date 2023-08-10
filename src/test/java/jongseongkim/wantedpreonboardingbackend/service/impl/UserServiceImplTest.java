@@ -1,6 +1,6 @@
 package jongseongkim.wantedpreonboardingbackend.service.impl;
 
-import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
+import static jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 

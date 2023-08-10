@@ -1,6 +1,6 @@
 package jongseongkim.wantedpreonboardingbackend.utils;
 
-import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
+import static jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription.*;
 
 public class ValidationUtil {
 

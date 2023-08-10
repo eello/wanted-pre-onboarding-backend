@@ -1,12 +1,9 @@
 package jongseongkim.wantedpreonboardingbackend.utils;
 
-import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
+import static jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
 
 class ValidationUtilTest {
 

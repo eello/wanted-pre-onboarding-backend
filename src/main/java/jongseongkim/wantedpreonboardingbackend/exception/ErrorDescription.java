@@ -1,4 +1,4 @@
-package jongseongkim.wantedpreonboardingbackend.error;
+package jongseongkim.wantedpreonboardingbackend.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,9 @@ public enum ErrorDescription {
 	NOT_FOUND_USER("존재하지 않는 유저입니다."),
 	ARG_IS_NULL("값이 Null인 Argument가 존재합니다."),
 	NOT_FOUND_BOARD("존재하지 않는 게시글입니다."),
+	NOT_AUTHENTICATED("인증이 필요한 서비스입니다."),
+	NOT_AUTHORIZED("권한이 없습니다."),
+
 	;
 
 	private final String description;

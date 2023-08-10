@@ -1,6 +1,6 @@
 package jongseongkim.wantedpreonboardingbackend.service.impl;
 
-import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
+import static jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
@@ -24,7 +24,7 @@ import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
 import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
-import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
+import jongseongkim.wantedpreonboardingbackend.exception.NotAuthenticated;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.vo.BoardRegisterRequestVO;
@@ -332,5 +332,197 @@ class BoardServiceImplTest {
 		assertEquals(board.getId(), result.getId());
 		assertEquals(board.getTitle(), result.getTitle());
 		assertEquals(board.getContent(), result.getContent());
+	}
+
+	@Test
+	public void 게시글_수정_실패_writerEmail_is_null() {
+	    // given
+	 	Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title")
+			.content("content")
+			.build();
+
+	    // when
+		IllegalArgumentException exception =
+			assertThrows(IllegalArgumentException.class, () -> boardService.update(null, boardId, vo));
+
+		// then
+	    assertEquals(ARG_IS_NULL.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_실패_boardId_is_null() {
+		// given
+		String writerEmail = "aa@aa.a";
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title")
+			.content("content")
+			.build();
+
+		// when
+		IllegalArgumentException exception =
+			assertThrows(IllegalArgumentException.class, () -> boardService.update(writerEmail, null, vo));
+
+		// then
+		assertEquals(ARG_IS_NULL.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_실패_vo_is_null() {
+		// given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+
+		// when
+		IllegalArgumentException exception =
+			assertThrows(IllegalArgumentException.class, () -> boardService.update(writerEmail, boardId, null));
+
+		// then
+		assertEquals(ARG_IS_NULL.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_실패_writer_not_found() {
+	    // given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title")
+			.content("content")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+
+	    // when
+		NotAuthenticated exception =
+			assertThrows(NotAuthenticated.class, () -> boardService.update(writerEmail, boardId, vo));
+
+		// then
+		assertEquals(NOT_AUTHENTICATED.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_실패_board_not_found() {
+	    // given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title")
+			.content("content")
+			.build();
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.empty());
+
+	    // when
+		EntityNotFoundException exception =
+			assertThrows(EntityNotFoundException.class, () -> boardService.update(writerEmail, boardId, vo));
+
+		// then
+	    assertEquals(NOT_FOUND_BOARD.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_성공_제목만() {
+	    // given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title after update")
+			.content(null)
+			.build();
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(writer)
+			.title("title before update")
+			.content("content before update")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+		// when
+		assertDoesNotThrow(() -> boardService.update(writerEmail, boardId, vo));
+
+	    // then
+		assertEquals(vo.getTitle(), board.getTitle());
+		assertNotNull(board.getContent());
+		assertEquals("content before update", board.getContent());
+	}
+
+	@Test
+	public void 게시글_수정_성공_본문만() {
+		// given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title(null)
+			.content("content after update")
+			.build();
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(writer)
+			.title("title before update")
+			.content("content before update")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+		// when
+		assertDoesNotThrow(() -> boardService.update(writerEmail, boardId, vo));
+
+		// then
+		assertNotNull(board.getTitle());
+		assertEquals("title before update", board.getTitle());
+		assertEquals(vo.getContent(), board.getContent());
+	}
+
+	@Test
+	public void 게시글_수정_성공_전부() {
+		// given
+		String writerEmail = "aa@aa.a";
+		Long boardId = 1L;
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("title after update")
+			.content("content after update")
+			.build();
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(writer)
+			.title("title before update")
+			.content("content before update")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+		// when
+		assertDoesNotThrow(() -> boardService.update(writerEmail, boardId, vo));
+
+		// then
+		assertEquals(vo.getTitle(), board.getTitle());
+		assertEquals(vo.getContent(), board.getContent());
 	}
 }

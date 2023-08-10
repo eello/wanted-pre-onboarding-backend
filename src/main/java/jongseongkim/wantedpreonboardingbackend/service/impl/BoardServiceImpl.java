@@ -1,8 +1,6 @@
 package jongseongkim.wantedpreonboardingbackend.service.impl;
 
-import static jongseongkim.wantedpreonboardingbackend.error.ErrorDescription.*;
-
-import java.util.List;
+import static jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription.*;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -11,12 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import jongseongkim.wantedpreonboardingbackend.dto.BoardDTO;
 import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
-import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
+import jongseongkim.wantedpreonboardingbackend.exception.NotAuthenticated;
+import jongseongkim.wantedpreonboardingbackend.exception.NotAuthorized;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.service.BoardService;
@@ -68,5 +68,31 @@ public class BoardServiceImpl implements BoardService {
 			.orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_BOARD.getDescription()));
 
 		return BoardDTO.of(board);
+	}
+
+	@Override
+	@Transactional
+	public void update(String writerEmail, Long boardId, BoardRegisterRequestVO vo) {
+		Assert.notNull(writerEmail, ARG_IS_NULL.getDescription());
+		Assert.notNull(boardId, ARG_IS_NULL.getDescription());
+		Assert.notNull(vo, ARG_IS_NULL.getDescription());
+
+		User writer = userRepository.findByEmail(writerEmail)
+			.orElseThrow(() -> new NotAuthenticated(NOT_AUTHENTICATED.getDescription()));
+
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_BOARD.getDescription()));
+
+		if (!board.isWrittenBy(writer)) {
+			throw new NotAuthorized(NOT_AUTHORIZED.getDescription());
+		}
+
+		if (StringUtils.hasText(vo.getTitle())) {
+			board.updateTitle(vo.getTitle());
+		}
+
+		if (StringUtils.hasText(vo.getContent())) {
+			board.updateContent(vo.getContent());
+		}
 	}
 }

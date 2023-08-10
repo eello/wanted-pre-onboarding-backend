@@ -41,4 +41,16 @@ public class Board {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "writer_id")
 	private User writer;
+
+	public boolean isWrittenBy(User writer) {
+		return this.writer.getId().equals(writer.getId());
+	}
+
+	public void updateTitle(String title) {
+		this.title = title;
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
+	}
 }

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jongseongkim.wantedpreonboardingbackend.dto.TokenDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
-import jongseongkim.wantedpreonboardingbackend.error.ErrorDescription;
+import jongseongkim.wantedpreonboardingbackend.exception.ErrorDescription;
 import jongseongkim.wantedpreonboardingbackend.jwt.JwtProvider;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.service.UserService;

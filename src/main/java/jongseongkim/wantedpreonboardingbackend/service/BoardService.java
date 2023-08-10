@@ -14,4 +14,6 @@ public interface BoardService {
 	PaginationDTO<Board, BoardDTO> getBoardsWithPaging(Pageable pageable);
 
 	BoardDTO getById(Long boardID);
+
+	void update(String writerEmail, Long boardId, BoardRegisterRequestVO vo);
 }
