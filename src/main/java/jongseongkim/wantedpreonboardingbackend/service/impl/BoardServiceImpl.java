@@ -95,4 +95,23 @@ public class BoardServiceImpl implements BoardService {
 			board.updateContent(vo.getContent());
 		}
 	}
+
+	@Override
+	@Transactional
+	public void delete(String writerEmail, Long boardId) {
+		Assert.notNull(writerEmail, ARG_IS_NULL.getDescription());
+		Assert.notNull(boardId, ARG_IS_NULL.getDescription());
+
+		User writer = userRepository.findByEmail(writerEmail)
+			.orElseThrow(() -> new NotAuthenticated(NOT_AUTHENTICATED.getDescription()));
+
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_BOARD.getDescription()));
+
+		if (!board.isWrittenBy(writer)) {
+			throw new NotAuthorized(NOT_AUTHORIZED.getDescription());
+		}
+
+		boardRepository.delete(board);
+	}
 }

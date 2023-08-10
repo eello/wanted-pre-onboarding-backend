@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,6 +71,15 @@ public class BoardController {
 		@RequestBody BoardRegisterRequestVO vo,
 		ExtractedUser eu) {
 		boardService.update(eu.getEmail(), boardId, vo);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
+	@DeleteMapping("/{id}")
+	public void delete(
+		HttpServletResponse response,
+		@PathVariable("id") Long boardId,
+		ExtractedUser eu) {
+		boardService.delete(eu.getEmail(), boardId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 }

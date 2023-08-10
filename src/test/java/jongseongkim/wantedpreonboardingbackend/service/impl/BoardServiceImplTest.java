@@ -14,6 +14,7 @@ import javax.persistence.EntityNotFoundException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -563,5 +564,103 @@ class BoardServiceImplTest {
 		// then
 		assertEquals(vo.getTitle(), board.getTitle());
 		assertEquals(vo.getContent(), board.getContent());
+	}
+
+	@Test
+	public void 게시글_삭제_실패_writer_not_found() {
+	    // given
+		String writerEmail = "writer@aa.a";
+		Long boardId = 1L;
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+
+	    // when
+		NotAuthenticated exception =
+			assertThrows(NotAuthenticated.class, () -> boardService.delete(writerEmail, boardId));
+
+		// then
+	    assertEquals(NOT_AUTHENTICATED.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_삭제_실패_board_not_found() {
+	    // given
+		String writerEmail = "writer@aa.a";
+		Long boardId = 1L;
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.empty());
+
+		// when
+		EntityNotFoundException exception =
+			assertThrows(EntityNotFoundException.class, () -> boardService.delete(writerEmail, boardId));
+
+	    // then
+		assertEquals(NOT_FOUND_BOARD.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_삭제_실패_권한없음() {
+	    // given
+		String writerEmail = "notwriter@aa.a";
+		Long boardId = 1L;
+
+		User realWriter = User.builder()
+			.id(1L)
+			.email("realWriter@aa.a")
+			.build();
+
+		User fakeWriter = User.builder()
+			.id(2L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(realWriter)
+			.title("title")
+			.content("content")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(fakeWriter));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+	    // when
+		NotAuthorized exception =
+			assertThrows(NotAuthorized.class, () -> boardService.delete(writerEmail, boardId));
+
+	    // then
+	    assertEquals(NOT_AUTHORIZED.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_삭제_성공() {
+	    // given
+		String writerEmail = "writer@aa.a";
+		Long boardId = 1L;
+
+		User writer = User.builder()
+			.id(1L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(writer)
+			.title("title")
+			.content("content")
+			.build();
+
+		given(userRepository.findByEmail(anyString())).willReturn(Optional.of(writer));
+		given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+	    // when
+		assertDoesNotThrow(() -> boardService.delete(writerEmail, boardId));
+
+	    // then
+		verify(boardRepository, times(1)).delete(any(Board.class));
 	}
 }

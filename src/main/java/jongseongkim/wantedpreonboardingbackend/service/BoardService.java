@@ -16,4 +16,6 @@ public interface BoardService {
 	BoardDTO getById(Long boardID);
 
 	void update(String writerEmail, Long boardId, BoardRegisterRequestVO vo);
+
+	void delete(String writerEmail, Long boardId);
 }
