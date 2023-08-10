@@ -25,6 +25,7 @@ import jongseongkim.wantedpreonboardingbackend.dto.PaginationDTO;
 import jongseongkim.wantedpreonboardingbackend.entity.Board;
 import jongseongkim.wantedpreonboardingbackend.entity.User;
 import jongseongkim.wantedpreonboardingbackend.exception.NotAuthenticated;
+import jongseongkim.wantedpreonboardingbackend.exception.NotAuthorized;
 import jongseongkim.wantedpreonboardingbackend.repository.BoardRepository;
 import jongseongkim.wantedpreonboardingbackend.repository.UserRepository;
 import jongseongkim.wantedpreonboardingbackend.vo.BoardRegisterRequestVO;
@@ -426,6 +427,44 @@ class BoardServiceImplTest {
 
 		// then
 	    assertEquals(NOT_FOUND_BOARD.getDescription(), exception.getMessage());
+	}
+
+	@Test
+	public void 게시글_수정_실패_not_writer() {
+	    // given
+		String writerEmail = "notwriter@aa.a";
+		Long boardId = 1L;
+
+		BoardRegisterRequestVO vo = BoardRegisterRequestVO.builder()
+			.title("updated title")
+			.content("update content")
+			.build();
+
+		User realWriter = User.builder()
+			.id(1L)
+			.email("realWriter@aa.a")
+			.build();
+
+		User fakeWriter = User.builder()
+			.id(2L)
+			.email(writerEmail)
+			.build();
+
+		Board board = Board.builder()
+			.writer(realWriter)
+			.title("title")
+			.content("content")
+			.build();
+
+		given(userRepository.findByEmail(writerEmail)).willReturn(Optional.of(fakeWriter));
+		given(boardRepository.findById(boardId)).willReturn(Optional.of(board));
+
+		// when
+		NotAuthorized exception =
+			assertThrows(NotAuthorized.class, () -> boardService.update(writerEmail, boardId, vo));
+
+		// then
+		assertEquals(NOT_AUTHORIZED.getDescription(), exception.getMessage());
 	}
 
 	@Test
