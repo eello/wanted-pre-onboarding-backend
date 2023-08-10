@@ -64,7 +64,12 @@ public class BoardController {
 	}
 
 	@PatchMapping("/{id}")
-	public void update(@PathVariable("id") Long boardId, @RequestBody BoardRegisterRequestVO vo, ExtractedUser eu) {
+	public void update(
+		HttpServletResponse response,
+		@PathVariable("id") Long boardId,
+		@RequestBody BoardRegisterRequestVO vo,
+		ExtractedUser eu) {
 		boardService.update(eu.getEmail(), boardId, vo);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 }
