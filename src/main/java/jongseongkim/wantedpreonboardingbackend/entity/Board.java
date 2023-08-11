@@ -27,7 +27,7 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString(exclude = "writer")
-public class Board {
+public class Board extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

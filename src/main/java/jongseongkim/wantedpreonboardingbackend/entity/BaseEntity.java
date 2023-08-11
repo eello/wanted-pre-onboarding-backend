@@ -21,8 +21,8 @@ public abstract class BaseEntity {
 
 	@CreatedDate
 	@Column(updatable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
+	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	private LocalDateTime updatedAt = LocalDateTime.now();
+	private LocalDateTime updatedAt;
 }
